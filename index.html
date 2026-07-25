@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#102f44">
-<title>政府採購 AI 測驗平台 V4.2.0 Legal Verification & Exam Analytics Edition</title>
+<title>政府採購 AI 學習平台 V5.1.4 Test Reliability Fix Edition</title>
 <link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icons/icon-180.png"><link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,10 +12,13 @@
 <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 <div class="app-shell">
 <aside class="top desktop-sidebar" aria-label="電腦版主選單">
- <div class="brand"><span class="emblem">AI</span><div><h1>政府採購 AI 測驗平台</h1><p>V4.2.0 LEGAL VERIFICATION</p></div></div>
+ <div class="brand"><span class="emblem">AI</span><div><h1>政府採購 AI 學習平台</h1><p>V5.1.4 RELIABILITY FIX</p></div></div>
  <nav>
 <button data-page="dashboard"><span class="nav-icon">⌂</span><span>學習總覽</span></button>
 <button data-page="learning"><span class="nav-icon">AI</span><span>AI 學習中心</span></button>
+<button data-page="tutor"><span class="nav-icon">師</span><span>AI 採購老師</span></button>
+<button data-page="cases"><span class="nav-icon">案</span><span>案例研習</span></button>
+<button data-page="compare"><span class="nav-icon">比</span><span>法條比較</span></button>
 <button data-page="analytics"><span class="nav-icon">析</span><span>學習分析</span></button>
 <button data-page="setup"><span class="nav-icon">考</span><span>模擬測驗</span></button>
 <button data-page="bank"><span class="nav-icon">搜</span><span>題庫查詢</span></button>
@@ -26,11 +29,11 @@
 <button data-page="history"><span class="nav-icon">記</span><span>學習紀錄</span></button>
 <button data-page="settings"><span class="nav-icon">設</span><span>平台設定</span></button>
 </nav>
-<div class="sidebar-note"><b>專業模擬器</b><span>資料僅儲存在本機瀏覽器</span></div>
+<div class="sidebar-note"><b>AI 法規學習與專業模擬</b><span>資料僅儲存在本機瀏覽器</span></div>
 </aside>
 <div class="app-content">
 <header class="mobile-topbar">
- <div class="mobile-brand"><span class="emblem">AI</span><div><b>政府採購 AI 測驗平台</b><small>V4.2.0 Exam Analytics</small></div></div>
+ <div class="mobile-brand"><span class="emblem">AI</span><div><b>政府採購 AI 學習平台</b><small>V5.1.4 Reliability</small></div></div>
  <button id="mobileMoreTop" class="icon-button" aria-label="開啟更多功能">☰</button>
 </header>
 <main>
@@ -54,6 +57,7 @@
  </div>
 
  <div class="metrics v3-metrics" id="metrics"></div>
+ <article class="card enterprise-mission"><div><span class="kicker">ENTERPRISE DAILY MISSION</span><h3>今日任務</h3></div><div id="enterpriseMission"></div></article>
 
  <div class="dashboard-grid">
   <article class="card daily-plan-card">
@@ -68,6 +72,8 @@
 
  <div class="learning-actions v3-actions">
   <button class="learning-card accent" data-page="learning"><span class="feature-icon">AI</span><b>AI 學習中心</b><span>個人化弱點分析與今日推薦</span></button>
+  <button class="learning-card enterprise-card" data-page="tutor"><span class="feature-icon">師</span><b>AI 採購老師</b><span>用白話查法條、比較規定與找相關題目</span></button>
+  <button class="learning-card" data-page="cases"><span class="feature-icon">案</span><b>案例研習</b><span>以採購情境逐步判斷程序與法源</span></button>
   <button class="learning-card" data-page="setup"><span class="feature-icon">考</span><b>模擬測驗</b><span>三節、單節或快速練習</span></button>
   <button class="learning-card" data-page="analytics"><span class="feature-icon">析</span><b>學習分析</b><span>加權得分、覆蓋率與趨勢</span></button>
   <button class="learning-card" data-page="bank"><span class="feature-icon">搜</span><b>題庫搜尋</b><span>快速查找題目與解析</span></button>
@@ -100,6 +106,31 @@
  </article>
 </section>
 
+
+
+<section id="tutor" class="page hidden">
+ <div class="pagehead enterprise-head"><div><span class="kicker">AI PROCUREMENT TUTOR</span><h2>AI 採購老師</h2><p>使用統一採購知識資料層、法源索引與3,664題題庫，提供白話重點、易混淆提醒、法條比較與相關題目。</p></div><span class="enterprise-badge">V5.1.4 RELIABILITY</span></div>
+ <div class="tutor-layout">
+  <article class="card tutor-chat-card">
+   <div id="tutorMessages" class="tutor-messages"><div class="tutor-message assistant"><b>AI 採購老師</b><p>可輸入法條號或採購主題，例如「第53、54、58條差在哪」、「限制性招標」、「驗收不符如何處理」。回答會標示學習摘要與相關題目。</p></div></div>
+   <div class="tutor-suggestions"><button data-tutor-prompt="第53條、第54條與第58條差在哪？">53／54／58 比較</button><button data-tutor-prompt="限制性招標的重點是什麼？">限制性招標</button><button data-tutor-prompt="驗收程序有哪些常考重點？">驗收重點</button><button data-tutor-prompt="最有利標有哪些相關題目？">最有利標題目</button></div>
+   <div class="tutor-input-row"><textarea id="tutorInput" aria-label="輸入採購法規或實務問題" rows="3" placeholder="輸入法條、主題或實務問題"></textarea><button id="askTutor" class="primary">送出問題</button></div>
+  </article>
+  <aside class="card tutor-reference"><span class="kicker">SMART REFERENCE</span><h3>智慧參考</h3><div id="tutorReference"><p>送出問題後，這裡會列出辨識到的法條、相關題目與可信度說明。</p></div></aside>
+ </div>
+</section>
+
+<section id="cases" class="page hidden">
+ <div class="pagehead"><div><span class="kicker">PROCUREMENT CASE LAB</span><h2>採購案例研習</h2><p>先判斷、再查看處理流程與法源，培養實務情境的決策能力。</p></div><button id="randomCase" class="secondary">隨機案例</button></div>
+ <div id="caseMetrics" class="metrics"></div>
+ <article class="card case-card"><div class="case-head"><span id="caseCategory" class="case-category">招標程序</span><span id="caseLevel">基礎</span></div><h3 id="caseTitle"></h3><p id="caseScenario" class="case-scenario"></p><div id="caseOptions" class="case-options"></div><div id="caseFeedback" class="case-feedback hidden"></div><div class="case-actions"><button id="prevCase" class="secondary">上一案例</button><button id="nextCase" class="primary">下一案例</button></div></article>
+</section>
+
+<section id="compare" class="page hidden">
+ <div class="pagehead"><div><span class="kicker">LEGAL COMPARISON CENTER</span><h2>易混淆法條比較</h2><p>把常被混用的規定放在同一張表中，並可直接建立比較練習。</p></div></div>
+ <div class="card comparison-controls"><label>比較主題<select id="compareTopic" aria-label="比較主題"></select></label><button id="renderComparison" class="primary">顯示比較</button><button id="practiceComparisonV5" class="secondary">建立20題比較練習</button></div>
+ <article class="card"><div id="comparisonTable"></div></article>
+</section>
 
 <section id="analytics" class="page hidden">
  <div class="pagehead"><div><span class="kicker">EXAM ANALYTICS</span><h2>學習與測驗分析</h2><p>分開呈現題數答對率、2／5 分加權得分率、不重複題庫覆蓋率與作答趨勢。</p></div><button id="exportDiagnostics" class="secondary">匯出診斷報告</button></div>
@@ -158,14 +189,14 @@
 
 <section id="bank" class="page hidden">
  <div class="pagehead"><div><span class="kicker">QUESTION BANK</span><h2>題庫查詢</h2></div></div>
- <div class="card filters"><input id="search" placeholder="搜尋題目、出處或法條，例如：第22條、最有利標"><select id="bankSection"><option value="all">全部科目</option></select><select id="bankType"><option value="all">全部題型</option><option value="mc">選擇題</option><option value="tf">是非題</option></select></div>
+ <div class="card filters"><input id="search" aria-label="搜尋題庫" placeholder="搜尋題目、出處或法條，例如：第22條、最有利標"><select id="bankSection" aria-label="題庫科目篩選"><option value="all">全部科目</option></select><select id="bankType" aria-label="題庫題型篩選"><option value="all">全部題型</option><option value="mc">選擇題</option><option value="tf">是非題</option></select></div>
  <div id="bankCount" class="count"></div><div id="bankList"></div><div id="bankPagination" class="pagination"></div>
 </section>
 
 
 <section id="lawIndex" class="page hidden">
  <div class="pagehead"><div><span class="kicker">LEGAL REFERENCE INDEX</span><h2>法規索引</h2><p>依題目明示法條與關鍵字關聯建立索引；推定關聯不代表本題唯一適用法源。</p></div></div>
- <div class="card filters law-index-filter"><input id="lawSearch" placeholder="搜尋法規名稱或條號，例如：政府採購法第22條"></div>
+ <div class="card filters law-index-filter"><input id="lawSearch" aria-label="搜尋法規名稱或條號" placeholder="搜尋法規名稱或條號，例如：政府採購法第22條"></div>
  <div id="lawIndexStats" class="metrics"></div>
  <div id="lawIndexList"></div>
 </section>
@@ -204,17 +235,17 @@
   <article class="card"><h3>法規資料狀態</h3><p>法源索引核對日：115年7月25日。政府採購法修正日期：108年5月22日；政府採購法施行細則修正日期：110年7月14日。</p><div class="setting-actions"><button data-page="lawIndex" class="primary">開啟法規索引</button><a class="secondary button-link" href="https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=A0030057" target="_blank" rel="noopener noreferrer">官方最新法規</a></div></article>
   <article class="card danger-zone"><h3>資料清理</h3><p>「清除測驗紀錄」只刪除完成紀錄；「清除統計與紀錄」會同時重設答題數、答對率及 AI 分析。</p><div class="setting-actions vertical"><button id="exportDiagnosticsSettings" class="secondary">匯出診斷報告</button><button id="clearHistoryOnly" class="secondary">只清除測驗紀錄</button><button id="clearLearningStats" class="danger">清除統計與紀錄</button><button id="resetAll" class="danger outline">重設全部資料</button></div></article>
  </div>
- <article class="card about-card"><h3>關於本平台</h3><p><b>政府採購 AI 測驗平台 V4.2.0 Legal Verification & Exam Analytics Edition</b> 是獨立開發的教育訓練與自我學習工具。平台內的題目、解析與配置由本專案自行整理，與任何政府機關、考試主辦單位或特定機關題庫均無隸屬、授權、合作或認證關係。</p><p>內容僅供學習參考；實際案件仍應依最新法規、函釋、招標文件及契約內容辦理。</p></article>
+ <article class="card about-card"><h3>關於本平台</h3><p><b>政府採購 AI 學習平台 V5.1.4 Test Reliability Fix Edition</b> 是獨立開發的教育訓練與自我學習工具。平台內的題目、解析與配置由本專案自行整理，與任何政府機關、考試主辦單位或特定機關題庫均無隸屬、授權、合作或認證關係。</p><p>內容僅供學習參考；實際案件仍應依最新法規、函釋、招標文件及契約內容辦理。</p></article>
 </section>
 
 <section id="wrong" class="page hidden">
  <div class="pagehead"><div><span class="kicker">SPACED REVIEW CENTER</span><h2>錯題間隔複習</h2><p>錯題不再答對兩次就刪除，而是依 1、3、7、14、30、90 天逐步安排複習。</p></div><button id="clearWrong" class="danger">清除錯題紀錄</button></div>
  <div id="wrongSummary" class="metrics"></div>
- <div class="card wrong-toolbar"><select id="wrongStatusFilter"><option value="all">全部錯題</option><option value="due">今日到期</option><option value="learning">學習中</option><option value="mastered">已掌握待追蹤</option></select><div><button id="practiceDueWrong" class="primary">練習今日到期</button><button id="practiceAllWrong" class="secondary">練習全部錯題</button></div></div>
+ <div class="card wrong-toolbar"><select id="wrongStatusFilter" aria-label="錯題狀態篩選"><option value="all">全部錯題</option><option value="due">今日到期</option><option value="learning">學習中</option><option value="mastered">已掌握待追蹤</option></select><div><button id="practiceDueWrong" class="primary">練習今日到期</button><button id="practiceAllWrong" class="secondary">練習全部錯題</button></div></div>
  <div id="wrongList"></div>
 </section>
 </main>
-<footer><b>政府採購 AI 測驗平台 V4.2.0 Legal Verification & Exam Analytics Edition</b><br>本平台為獨立開發之學習工具，與任何政府機關或考試主辦單位無隸屬、授權、合作或認證關係。內容僅供教育訓練與自我學習參考。</footer>
+<footer><b>政府採購 AI 學習平台 V5.1.4 Test Reliability Fix Edition</b><br>本平台為獨立開發之學習工具，與任何政府機關或考試主辦單位無隸屬、授權、合作或認證關係。內容僅供教育訓練與自我學習參考。</footer>
 </div>
 </div>
 <div id="mobileOverlay" class="mobile-overlay"></div>
@@ -229,6 +260,9 @@
  <div class="sheet-handle"></div>
  <div class="sheet-head"><div><b>更多功能</b><small>題庫、收藏、文件與資料設定</small></div><button id="closeMobileMore" class="icon-button" aria-label="關閉更多功能">×</button></div>
  <div class="sheet-grid">
+  <button data-page="tutor"><span>師</span><b>AI 採購老師</b></button>
+  <button data-page="cases"><span>案</span><b>案例研習</b></button>
+  <button data-page="compare"><span>比</span><b>法條比較</b></button>
   <button data-page="analytics"><span>析</span><b>學習分析</b></button>
   <button data-page="bank"><span>搜</span><b>題庫查詢</b></button>
   <button data-page="lawIndex"><span>法</span><b>法規索引</b></button>
@@ -238,5 +272,5 @@
   <button data-page="settings"><span>設</span><b>平台設定</b></button>
  </div>
 </section>
-<script src="data/questions.js"></script><script src="data/scheme.js"></script><script src="data/verified_legal_data.js"></script><script src="data/legal_basis.js"></script><script src="app.js"></script>
+<script src="data/questions.js"></script><script src="data/scheme.js"></script><script src="data/verified_legal_data.js"></script><script src="data/legal_basis.js"></script><script src="data/knowledge_base.js"></script><script src="app.js"></script>
 </body></html>

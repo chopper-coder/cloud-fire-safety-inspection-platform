@@ -1,7 +1,7 @@
 {
-  "name": "政府採購 AI 測驗平台 V4.2.0",
-  "short_name": "採購AI測驗",
-  "description": "政府採購法規題庫、法源解析、錯題間隔複習與測驗分析。",
+  "name": "政府採購 AI 學習平台 V5.1.4",
+  "short_name": "採購AI V5.1.4",
+  "description": "整合題庫、法條知識、案例研習、比較學習與個人化分析的離線學習平台。",
   "lang": "zh-TW",
   "start_url": "./",
   "scope": "./",

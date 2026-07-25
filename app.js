@@ -3,10 +3,10 @@
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
-const APP_NAME = '政府採購 AI 測驗平台';
-const APP_VERSION = '4.2.0';
+const APP_NAME = '政府採購 AI 學習平台';
+const APP_VERSION = '5.1.4';
 const QUESTION_BANK_VERSION = '2026-07-25-v2-deduplicated';
-const LEGAL_ANALYSIS_VERSION = '2026-07-25-v4-verification-analytics';
+const LEGAL_ANALYSIS_VERSION = '2026-07-25-v5-enterprise-tutor';
 const QUESTION_ID_ALIASES = window.QUESTION_ID_ALIASES || {};
 const COMPARISON_SETS = window.VERIFIED_LEGAL_DATA?.comparisons || [];
 const runtimeErrors = [];
@@ -18,7 +18,8 @@ const LS = {
   stats: 'gpai_v400_stats',
   favorites: 'gpai_v400_favorites',
   prefs: 'gpai_v400_prefs',
-  questionStats: 'gpai_v420_question_stats'
+  questionStats: 'gpai_v420_question_stats',
+  enterprise: 'gpai_v500_enterprise'
 };
 const LEGACY_KEY_MAP = {
   palp_v302_state: LS.state,
@@ -71,7 +72,6 @@ function blankState() {
     review: 'wrong',
     focusLoss: 0,
     attemptId: '',
-    statsTestCounted: false,
     resultsRecorded: false
   };
 }
@@ -227,7 +227,7 @@ function openQuestionNav() {
 
 function updateActiveNavigation(pageId) {
   $$('[data-page]').forEach((button) => button.classList.toggle('active', button.dataset.page === pageId));
-  const morePages = new Set(['analytics', 'bank', 'lawIndex', 'favorites', 'templates', 'history', 'settings']);
+  const morePages = new Set(['tutor', 'cases', 'compare', 'analytics', 'bank', 'lawIndex', 'favorites', 'templates', 'history', 'settings']);
   $('#mobileMore')?.classList.toggle('active', morePages.has(pageId));
 }
 
@@ -249,6 +249,9 @@ function show(pageId) {
 
   if (pageId === 'dashboard') dashboard();
   if (pageId === 'learning') renderLearningCenter();
+  if (pageId === 'tutor') { /* 保留目前對話 */ }
+  if (pageId === 'cases') renderCases();
+  if (pageId === 'compare') renderV5Comparison();
   if (pageId === 'analytics') renderAnalytics();
   if (pageId === 'bank') renderBank();
   if (pageId === 'lawIndex') renderLawIndex();
@@ -464,6 +467,7 @@ function dashboard() {
   $('#recentActivity').innerHTML = recent.length
     ? recent.map((row) => `<div class="activity-row"><div><b>${kindLabel(row.kind, row.questionCount)}</b><span>${new Date(Number(row.date)).toLocaleDateString('zh-TW')}</span></div><strong>${Math.round(Number(row.pct))}%</strong></div>`).join('')
     : '<div class="empty-insight">尚無學習紀錄。</div>';
+  renderEnterpriseMission();
   const resume = $('#resumeBtn');
   const canResume = hasResumableState();
   resume.disabled = !canResume;
@@ -529,8 +533,7 @@ function poolForCourse(course, type, used) {
   return shuffle(pool);
 }
 
-function createOfficialSession(sessionDef) {
-  const used = new Set();
+function createOfficialSession(sessionDef, used = new Set()) {
   const questions = [];
   sessionDef.courses.forEach((course) => {
     const trueFalse = poolForCourse(course, 'tf', used).slice(0, course.tf);
@@ -563,7 +566,8 @@ function buildOfficial(full, sessionNo = 1) {
   if (!SCHEME?.sessions?.length) return showAppError('模擬測驗方案資料遺失。');
   const definitions = full ? SCHEME.sessions : [SCHEME.sessions.find((session) => session.id === sessionNo)].filter(Boolean);
   if (!definitions.length) return alert('找不到指定節次。');
-  const plan = definitions.map((definition) => ({ id: definition.id, name: definition.name, score: definition.score, questions: createOfficialSession(definition) }));
+  const usedAcrossSessions = new Set();
+  const plan = definitions.map((definition) => ({ id: definition.id, name: definition.name, score: definition.score, questions: createOfficialSession(definition, usedAcrossSessions) }));
   if (plan.some((session) => !session.questions.length)) return alert('部分節次無法建立題目，請檢查題庫資料。');
   S = {
     ...blankState(),
@@ -919,7 +923,6 @@ function updateStats(record) {
     if (S.kind === 'official-full') stats.official = (Number(stats.official) || 0) + 1;
     stats.processedTests.push(S.attemptId);
     stats.processedTests = stats.processedTests.slice(-800);
-    S.statsTestCounted = true;
   }
   setStorage(LS.stats, stats);
   setStorage(LS.wrong, wrong);
@@ -1137,7 +1140,7 @@ function renderWrong() {
     if (wrongFilter === 'learning') return normalized.repetitions > 0 && normalized.repetitions < 3;
     if (wrongFilter === 'mastered') return normalized.repetitions >= 3;
     return true;
-  }).sort((a, b) => Number(normalizedWrongRecord(wrong[a.id]).nextReview) - Number(normalizedWrongRecord(wrong[b.id]).nextReview) || Number(wrong[b.id].last) - Number(wrong[a.id].last));
+  }).sort((a, b) => Number(normalizedWrongRecord(wrong[a.id]).nextReview) - Number(normalizedWrongRecord(wrong[b.id]).nextReview) || Number(normalizedWrongRecord(wrong[b.id]).last || 0) - Number(normalizedWrongRecord(wrong[a.id]).last || 0));
   $('#wrongList').innerHTML = rows.length ? rows.map((q) => { const record = normalizedWrongRecord(wrong[q.id]); return `<article class="bank-item"><div class="tags"><span>${q.type === 'tf' ? '是非題' : '選擇題'}</span><span>${esc(q.section)}</span><span>錯誤 ${record.count} 次</span><span>${esc(record.status)}</span><span>${esc(wrongDateText(record))}</span></div><h3>${esc(q.question)}</h3><p>${q.options.map((option, index) => `(${index + 1}) ${esc(option)}`).join('　')}</p><div class="answer-box"><div class="correct-answer-line"><b>正確答案：</b>${esc(q.options[q.answer])}</div>${legalAnalysisHtml(q, record.lastAnswer, true, 'review')}</div><button class="favorite-toggle ${isFavorite(q.id) ? 'active' : ''}" data-id="${esc(q.id)}">${isFavorite(q.id) ? '★ 已收藏' : '☆ 收藏'}</button></article>`; }).join('') : '<div class="card wrong-empty">此篩選目前沒有題目。</div>';
 }
 
@@ -1255,7 +1258,7 @@ function exportDiagnostics() {
   const payload = { app: APP_NAME, version: APP_VERSION, generatedAt: new Date().toISOString(), userAgent: navigator.userAgent, viewport: { width: innerWidth, height: innerHeight, dpr: devicePixelRatio }, online: navigator.onLine, storageBytes: storageUsage(), bank: { valid: BANK.length, invalid: bankCheck.invalid, duplicateContent: bankCheck.duplicateContent, aliases: QUESTION_ID_ALIASES }, legalAudit: audit, learning: learningData(), runtimeErrors: runtimeErrors.slice(-30) };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
-  const link = document.createElement('a'); link.href = url; link.download = `政府採購AI測驗平台_V4.2.0_診斷_${new Date().toISOString().slice(0,10)}.json`; document.body.appendChild(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 0);
+  const link = document.createElement('a'); link.href = url; link.download = `${APP_NAME.replace(/\s+/g, '')}_V${APP_VERSION}_診斷_${new Date().toISOString().slice(0,10)}.json`; document.body.appendChild(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
 function showUpdateBanner(worker) {
@@ -1329,7 +1332,7 @@ function exportData() {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = `政府採購AI測驗平台_V4.2.0_備份_${new Date().toISOString().slice(0, 10)}.json`;
+  link.download = `${APP_NAME.replace(/\s+/g, '')}_V${APP_VERSION}_備份_${new Date().toISOString().slice(0, 10)}.json`;
   document.body.appendChild(link);
   link.click();
   link.remove();
@@ -1338,18 +1341,78 @@ function exportData() {
 
 function validImportedValue(destination, value) {
   if (destination === LS.history) return Array.isArray(value) && value.length <= 5000;
-  if (destination === LS.state) return value && typeof value === 'object' && !Array.isArray(value);
-  if ([LS.wrong, LS.stats, LS.favorites, LS.prefs, LS.questionStats].includes(destination)) return value && typeof value === 'object' && !Array.isArray(value);
+  if ([LS.state, LS.wrong, LS.stats, LS.favorites, LS.prefs, LS.questionStats, LS.enterprise].includes(destination)) {
+    return value && typeof value === 'object' && !Array.isArray(value);
+  }
   return false;
 }
 
+function safeNonNegative(value, maximum = Number.MAX_SAFE_INTEGER) {
+  const number = Number(value);
+  return Number.isFinite(number) ? Math.min(maximum, Math.max(0, number)) : 0;
+}
+
+function sanitizeScoreBucket(value) {
+  const row = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+  const a = Math.round(safeNonNegative(row.a, 10000000));
+  const c = Math.min(a, Math.round(safeNonNegative(row.c, 10000000)));
+  const max = safeNonNegative(row.max, 50000000);
+  const raw = Math.min(max, safeNonNegative(row.raw, 50000000));
+  return { a, c, raw, max };
+}
+
+function sanitizeStats(value) {
+  const row = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+  const by = {};
+  Object.entries(row.by && typeof row.by === 'object' && !Array.isArray(row.by) ? row.by : {}).slice(0, 100).forEach(([key, bucket]) => {
+    if (sections.includes(key)) by[key] = sanitizeScoreBucket(bucket);
+  });
+  const type = {};
+  ['tf', 'mc'].forEach((key) => { if (row.type?.[key]) type[key] = sanitizeScoreBucket(row.type[key]); });
+  const answered = Math.round(safeNonNegative(row.answered, 10000000));
+  const correct = Math.min(answered, Math.round(safeNonNegative(row.correct, 10000000)));
+  const max = safeNonNegative(row.max, 50000000);
+  const raw = Math.min(max, safeNonNegative(row.raw, 50000000));
+  return {
+    answered, correct, raw, max,
+    tests: Math.round(safeNonNegative(row.tests, 1000000)),
+    official: Math.round(safeNonNegative(row.official, 1000000)),
+    by, type,
+    processedRecords: Array.isArray(row.processedRecords) ? row.processedRecords.filter((item) => typeof item === 'string' && item.length <= 160).slice(-1500) : [],
+    processedTests: Array.isArray(row.processedTests) ? row.processedTests.filter((item) => typeof item === 'string' && item.length <= 160).slice(-800) : []
+  };
+}
+
+function sanitizeHistory(value) {
+  return value.filter((row) => row && typeof row === 'object' && Number.isFinite(Number(row.date)) && Number.isFinite(Number(row.pct))).slice(-500).map((row) => {
+    const max = safeNonNegative(row.max, 50000000);
+    const raw = Math.min(max, safeNonNegative(row.raw, 50000000));
+    const questionCount = Math.round(safeNonNegative(row.questionCount, 10000));
+    const correct = Math.min(questionCount, Math.round(safeNonNegative(row.correct, 10000)));
+    const pct = Math.min(100, safeNonNegative(row.pct, 100));
+    return {
+      attemptId: typeof row.attemptId === 'string' ? row.attemptId.slice(0, 160) : '',
+      date: Number(row.date),
+      kind: typeof row.kind === 'string' ? row.kind.slice(0, 40) : 'quick',
+      raw, max, pct,
+      weightedPct: Math.min(100, safeNonNegative(row.weightedPct ?? pct, 100)),
+      correct,
+      questionAccuracy: Math.min(100, safeNonNegative(row.questionAccuracy, 100)),
+      questionCount
+    };
+  });
+}
+
 function sanitizeImportedValue(destination, value) {
-  if (destination === LS.history) return value.filter((row) => row && Number.isFinite(Number(row.date)) && Number.isFinite(Number(row.pct))).slice(-500);
-  if (destination === LS.wrong) return Object.fromEntries(Object.entries(value).map(([id, record]) => [canonicalQuestionId(id), record]).filter(([id]) => BANK_BY_ID.has(id)).map(([id, record]) => [id, normalizedWrongRecord(record)]));
-  if (destination === LS.favorites) return Object.fromEntries(Object.entries(value).map(([id, record]) => [canonicalQuestionId(id), record]).filter(([id]) => BANK_BY_ID.has(id)));
-  if (destination === LS.questionStats) return Object.fromEntries(Object.entries(value).map(([id, record]) => [canonicalQuestionId(id), record]).filter(([id]) => BANK_BY_ID.has(id)).map(([id, record]) => [id, normalizedQuestionStat(record)]));
-  if (destination === LS.prefs) return { largeText: Boolean(value.largeText), compactMode: Boolean(value.compactMode), autoNext: Boolean(value.autoNext), avoidRecentDays: Math.max(0, Number(value.avoidRecentDays) || 7) };
-  return value;
+  if (destination === LS.history) return sanitizeHistory(value);
+  if (destination === LS.state) return normalizeRestoredState(value, false);
+  if (destination === LS.stats) return sanitizeStats(value);
+  if (destination === LS.wrong) return Object.fromEntries(Object.entries(value).slice(0, BANK.length).map(([id, record]) => [canonicalQuestionId(id), record]).filter(([id]) => BANK_BY_ID.has(id)).map(([id, record]) => [id, normalizedWrongRecord(record)]));
+  if (destination === LS.favorites) return Object.fromEntries(Object.entries(value).slice(0, BANK.length).map(([id, record]) => [canonicalQuestionId(id), record]).filter(([id]) => BANK_BY_ID.has(id)).map(([id, record]) => [id, { saved: Math.max(0, Number(record?.saved) || Date.now()) }]));
+  if (destination === LS.questionStats) return Object.fromEntries(Object.entries(value).slice(0, BANK.length).map(([id, record]) => [canonicalQuestionId(id), record]).filter(([id]) => BANK_BY_ID.has(id)).map(([id, record]) => [id, normalizedQuestionStat(record)]));
+  if (destination === LS.prefs) return { largeText: Boolean(value.largeText), compactMode: Boolean(value.compactMode), autoNext: Boolean(value.autoNext), avoidRecentDays: Math.min(365, Math.max(0, Number(value.avoidRecentDays) || 7)) };
+  if (destination === LS.enterprise) return normalizeEnterpriseState(value);
+  return null;
 }
 
 async function importData(file) {
@@ -1365,7 +1428,9 @@ async function importData(file) {
     let imported = 0;
     Object.entries(payload.data).forEach(([key, value]) => {
       const destination = importMap.get(key);
-      if (destination && value !== null && validImportedValue(destination, value) && setStorage(destination, sanitizeImportedValue(destination, value), true)) imported += 1;
+      if (!destination || value === null || !validImportedValue(destination, value)) return;
+      const sanitized = sanitizeImportedValue(destination, value);
+      if (sanitized !== null && setStorage(destination, sanitized, true)) imported += 1;
     });
     if (!imported) throw new Error('備份中沒有可匯入的資料');
     S = blankState();
@@ -1441,6 +1506,26 @@ function handleButtonClick(event, button) {
       S = blankState();
       renderHistory(); dashboard();
     }
+    return true;
+  }
+  if (id === 'askTutor') { event.preventDefault(); askTutor(); return true; }
+  if (id === 'prevCase') { event.preventDefault(); v5CaseIndex = (v5CaseIndex - 1 + V5_CASES.length) % V5_CASES.length; renderCases(); return true; }
+  if (id === 'nextCase') { event.preventDefault(); v5CaseIndex = (v5CaseIndex + 1) % V5_CASES.length; renderCases(); return true; }
+  if (id === 'randomCase') {
+    event.preventDefault();
+    if (V5_CASES.length > 1) {
+      let next = v5CaseIndex;
+      while (next === v5CaseIndex) next = Math.floor(Math.random() * V5_CASES.length);
+      v5CaseIndex = next;
+    }
+    renderCases();
+    return true;
+  }
+  if (id === 'renderComparison') { event.preventDefault(); renderV5Comparison(); return true; }
+  if (id === 'practiceComparisonV5') {
+    event.preventDefault();
+    const topic = $('#compareTopic')?.value || 'award-price';
+    buildComparisonPractice(topic, 20);
     return true;
   }
   if (id === 'bankPrev') { event.preventDefault(); bankPage = Math.max(1, bankPage - 1); renderBank(); window.scrollTo({ top: 0, behavior: 'smooth' }); return true; }
@@ -1529,6 +1614,12 @@ document.addEventListener('click', (event) => {
     show('bank');
     return;
   }
+  if (button.matches('[data-tutor-prompt]')) { event.preventDefault(); askTutor(button.dataset.tutorPrompt); return; }
+  if (button.matches('[data-case-answer]')) { event.preventDefault(); answerCase(Number(button.dataset.caseAnswer)); return; }
+  if (button.classList.contains('tutor-open-question')) { event.preventDefault(); openTutorQuestion(button.dataset.id); return; }
+  if (button.classList.contains('topic-practice')) { event.preventDefault(); buildTopicPractice(button.dataset.topicId, 20); return; }
+  if (button.classList.contains('comparison-practice')) { event.preventDefault(); buildComparisonPractice(button.dataset.comparisonId, 20); return; }
+  if (button.classList.contains('open-comparison')) { event.preventDefault(); const id=button.dataset.comparisonId; show('compare'); if($('#compareTopic')) $('#compareTopic').value=id; renderV5Comparison(id); return; }
   if (button.classList.contains('favorite-toggle')) {
     event.preventDefault();
     toggleFavorite(button.dataset.id);
@@ -1547,6 +1638,8 @@ $('#compactMode').addEventListener('change', savePrefs);
 $('#autoNext').addEventListener('change', savePrefs);
 $('#avoidRecentDays')?.addEventListener('change', savePrefs);
 $('#importData').addEventListener('change', (event) => event.target.files[0] && importData(event.target.files[0]));
+$('#tutorInput')?.addEventListener('keydown', (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); askTutor(); } });
+$('#compareTopic')?.addEventListener('change', renderV5Comparison);
 
 window.addEventListener('pagehide', () => {
   if (!S.finished && S.questions?.length) { commitQuestionTime(); syncRemainingTime(); saveState(); }
@@ -1609,18 +1702,184 @@ function migrateReviewRecords() {
   if (JSON.stringify(normalizedStats) !== JSON.stringify(qStats)) setStorage(LS.questionStats, normalizedStats, true);
 }
 
+
+const KNOWLEDGE = window.PROCUREMENT_KNOWLEDGE || {topics:[], cases:[], comparisons:[], notice:''};
+const V5_CASES = Array.isArray(KNOWLEDGE.cases) ? KNOWLEDGE.cases : [];
+const V5_COMPARISONS = Object.fromEntries((Array.isArray(KNOWLEDGE.comparisons)?KNOWLEDGE.comparisons:[]).map(item=>[item.id,item]));
+let v5CaseIndex = 0;
+
+function normalizeEnterpriseState(raw){
+  const value=raw&&typeof raw==='object'&&!Array.isArray(raw)?raw:{};
+  const caseAttempts=Math.round(safeNonNegative(value.caseAttempts,1000000));
+  const caseCorrect=Math.min(caseAttempts,Math.round(safeNonNegative(value.caseCorrect,1000000)));
+  const allowedCases=new Set(V5_CASES.map((item)=>item.id));
+  const completedCases={};
+  Object.entries(value.completedCases&&typeof value.completedCases==='object'&&!Array.isArray(value.completedCases)?value.completedCases:{}).slice(0,V5_CASES.length).forEach(([id,record])=>{
+    if(!allowedCases.has(id)||!record||typeof record!=='object'||Array.isArray(record))return;
+    const item=V5_CASES.find((entry)=>entry.id===id);
+    const selected=Number.isInteger(record.selected)&&record.selected>=0&&record.selected<(item?.options?.length||0)?record.selected:null;
+    completedCases[id]={correct:Boolean(record.correct),answeredAt:safeNonNegative(record.answeredAt,4102444800000),selected};
+  });
+  const lastMissionDay=/^\d{4}-\d{2}-\d{2}$/.test(String(value.lastMissionDay||''))?String(value.lastMissionDay):'';
+  return {caseAttempts,caseCorrect,lastMissionDay,completedCases};
+}
+function getEnterpriseState(){ return normalizeEnterpriseState(getStorage(LS.enterprise,{})); }
+function setEnterpriseState(value){ setStorage(LS.enterprise,normalizeEnterpriseState(value),true); }
+
+function renderEnterpriseMission(){
+  const box=$('#enterpriseMission'); if(!box) return;
+  const data=learningData(); const enterprise=getEnterpriseState();
+  const today=localDayKey(Date.now()); const doneToday=data.history.filter(r=>localDayKey(Number(r.date))===today).length;
+  const items=[
+    {label:'完成一組練習',done:doneToday>0,page:'setup'},
+    {label:`複習今日到期錯題（${data.wrongStats.due}）`,done:data.wrongStats.due===0,page:'wrong'},
+    {label:'完成一個案例判斷',done:enterprise.lastMissionDay===today,page:'cases'}
+  ];
+  box.innerHTML=items.map((item,i)=>`<button class="mission-chip ${item.done?'done':''}" data-page="${item.page}"><span>${item.done?'✓':i+1}</span><b>${esc(item.label)}</b></button>`).join('');
+}
+
+function lawMatchesFromText(text){
+  const normalized=String(text||'').replace(/\s+/g,'');
+  const index=ensureLegalIndex();
+  const articleMatches=[...normalized.matchAll(/第?([0-9]{1,3}(?:-[0-9]+)?)條/g)].map(m=>m[1]);
+  return index.filter(item=>{
+    const label=String(item.label||'').replace(/\s+/g,'');
+    const key=String(item.key||'').replace(/\s+/g,'');
+    const origin=String(item.origin||'').replace(/\s+/g,'');
+    return normalized.includes(label)||normalized.includes(key)||normalized.includes(origin)||articleMatches.some(a=>label.includes(`第${a}條`)||key.endsWith(`:${a}`));
+  }).slice(0,10);
+}
+function normalizeTutorText(text){return String(text||'').toLowerCase().replace(/[？?，。；、：:（）()\s]/g,'');}
+function detectKnowledgeTopics(prompt){
+  const compact=normalizeTutorText(prompt);
+  return (KNOWLEDGE.topics||[]).map(topic=>{
+    let score=0;
+    (topic.aliases||[]).forEach(alias=>{const a=normalizeTutorText(alias); if(a&&compact.includes(a)) score+=a.match(/\d/) ? 8 : Math.min(6,a.length);});
+    if(compact.includes(normalizeTutorText(topic.title))) score+=8;
+    return {topic,score};
+  }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).map(x=>x.topic);
+}
+let tutorSearchIndex = null;
+function buildTutorSearchIndex(){
+  if(tutorSearchIndex) return tutorSearchIndex;
+  tutorSearchIndex = BANK.map((q) => ({
+    q,
+    question: normalizeTutorText(q.question),
+    section: normalizeTutorText(q.section),
+    explanation: normalizeTutorText(q.explanation)
+  }));
+  return tutorSearchIndex;
+}
+function findRelatedQuestions(prompt,topics){
+  const stop=new Set(['什麼','怎麼','如何','哪些','是否','可以','請問','相關','重點','題目','規定','差在哪','比較']);
+  const terms=String(prompt||'').replace(/[？?，。；、：:（）()]/g,' ').split(/\s+/).map(x=>x.trim()).filter(x=>x.length>=2&&!stop.has(x));
+  topics.forEach(topic=>(topic.aliases||[]).forEach(x=>terms.push(x)));
+  const unique=[...new Set(terms.map(normalizeTutorText).filter(Boolean))];
+  return buildTutorSearchIndex().map(item=>{
+    const score=unique.reduce((sum,w)=>sum+(item.question.includes(w)?5:0)+(item.section.includes(w)?3:0)+(item.explanation.includes(w)?1:0),0);
+    return {q:item.q,score};
+  }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score||String(a.q.id).localeCompare(String(b.q.id))).slice(0,12);
+}
+function comparisonForPrompt(prompt){
+  const compact=normalizeTutorText(prompt);
+  return (KNOWLEDGE.comparisons||[]).find(item=>{
+    const hits=(item.articles||[]).filter(a=>compact.includes(String(a))).length;
+    return hits>=2 || compact.includes(normalizeTutorText(item.title));
+  });
+}
+function tutorAnswer(prompt){
+  const text=String(prompt||'').trim();
+  if(!text) return {html:'<p>請先輸入問題。</p>',refs:[]};
+  const topics=detectKnowledgeTopics(text);
+  const comparison=comparisonForPrompt(text);
+  const related=findRelatedQuestions(text,topics);
+  const refs=lawMatchesFromText(text+' '+topics.flatMap(t=>(t.laws||[]).map(l=>`${l.law}第${l.article}條`)).join(' '));
+  let html='';
+  if(comparison){
+    html+=`<div class="knowledge-answer"><span class="answer-label">法條比較</span><h3>${esc(comparison.title)}</h3><p>${esc(comparison.summary||'')}</p><div class="knowledge-mini-table">${comparison.rows.map(row=>`<div><b>${esc(row[0])}</b><span>${esc(row[1])}</span><span>${esc(row[2])}</span><span>${esc(row[3])}</span></div>`).join('')}</div><button class="open-comparison" data-comparison-id="${esc(comparison.id)}">開啟完整比較表</button></div>`;
+  } else if(topics.length){
+    const topic=topics[0];
+    html+=`<div class="knowledge-answer"><span class="answer-label">${esc(topic.title)}</span><h3>白話重點</h3><p>${esc(topic.summary)}</p><h4>容易混淆</h4><ul>${(topic.pitfalls||[]).map(x=>`<li>${esc(x)}</li>`).join('')}</ul><div class="answer-laws">${(topic.laws||[]).map(l=>`<span>${esc(l.law)}第${esc(l.article)}條</span>`).join('')}</div></div>`;
+  } else {
+    html+='<div class="knowledge-answer"><span class="answer-label">題庫檢索</span><h3>未辨識到明確主題</h3><p>已改用題庫文字比對。建議輸入法條號，或使用「限制性招標、最低標、驗收、最有利標、異議、押標金」等具體關鍵字。</p></div>';
+  }
+  if(related.length){
+    html+=`<div class="answer-related"><h4>相關題目（${related.length}）</h4>${related.slice(0,6).map(x=>`<button class="tutor-open-question" data-id="${esc(x.q.id)}">${esc(String(x.q.question||'').slice(0,56))}${String(x.q.question||'').length>56?'…':''}</button>`).join('')}</div>`;
+  }
+  html+=`<p class="tutor-warning">${esc(KNOWLEDGE.notice||'內容僅供學習參考。')}</p>`;
+  return {html,refs,topics,related};
+}
+function renderTutorReference(answer){
+  const ref=$('#tutorReference'); if(!ref) return;
+  const topics=answer.topics||[];
+  const blocks=[];
+  topics.slice(0,3).forEach(topic=>blocks.push(`<div class="tutor-ref-item"><b>${esc(topic.title)}</b><span>${esc((topic.laws||[]).map(x=>`${x.law}第${x.article}條`).join('、'))}</span><button class="topic-practice" data-topic-id="${esc(topic.id)}">建立主題練習</button></div>`));
+  (answer.refs||[]).slice(0,5).forEach(item=>blocks.push(`<div class="tutor-ref-item"><b>${esc(item.label||'法規')}</b><span>直接題 ${Number(item.directCount)||0}｜關聯題 ${Number(item.inferredCount)||0}</span><button class="law-filter" data-law-key="${esc(item.key||'all')}">查看相關題目</button></div>`));
+  ref.innerHTML=blocks.length?blocks.join(''):'<p>未辨識到明確法條。請改用條號或更具體的採購主題。</p>';
+}
+function askTutor(promptOverride){
+  const input=$('#tutorInput'); const prompt=String(promptOverride ?? input?.value ?? '').trim();
+  if(!prompt){ toast('請輸入問題'); input?.focus(); return; }
+  const messages=$('#tutorMessages'); if(!messages) return;
+  messages.insertAdjacentHTML('beforeend',`<div class="tutor-message user"><b>你</b><p>${esc(prompt)}</p></div>`);
+  try{const answer=tutorAnswer(prompt);messages.insertAdjacentHTML('beforeend',`<div class="tutor-message assistant"><b>AI 採購老師</b>${answer.html}</div>`);renderTutorReference(answer);}catch(error){console.error(error);messages.insertAdjacentHTML('beforeend','<div class="tutor-message assistant"><b>AI 採購老師</b><p>知識檢索發生錯誤。請改用法條號或較短的主題關鍵字再試。</p></div>');}
+  messages.scrollTop=messages.scrollHeight;if(input)input.value='';
+}
+function buildTopicPractice(topicId,count=20){
+  const topic=(KNOWLEDGE.topics||[]).find(x=>x.id===topicId); if(!topic){toast('找不到主題資料');return;}
+  const related=findRelatedQuestions(topic.title+' '+(topic.aliases||[]).join(' '),[topic]).map(x=>x.q);
+  if(!related.length){alert('目前題庫沒有足夠的相關題目。');return;}
+  S=createExamState('law-practice',shuffle(related).slice(0,Math.min(count,related.length)),0,true);S.practiceLabel=topic.title;startExam();
+}
+
+function renderCases(){
+  const item=V5_CASES[v5CaseIndex]; if(!item) return;
+  renderCasesMetricsOnly();
+  $('#caseCategory').textContent=item.category||'案例'; $('#caseLevel').textContent=item.level||''; $('#caseTitle').textContent=item.title||'';
+  $('#caseScenario').innerHTML=`<span>${esc(item.scenario||'')}</span><strong>${esc(item.question||'')}</strong>`;
+  $('#caseOptions').innerHTML=(item.options||[]).map((o,i)=>`<button class="case-option" data-case-answer="${i}"><span>${i+1}</span>${esc(o)}</button>`).join('');
+  const feedback=$('#caseFeedback'); feedback.classList.add('hidden'); feedback.innerHTML='';
+  $('#prevCase').disabled=v5CaseIndex===0; $('#nextCase').textContent=v5CaseIndex===V5_CASES.length-1?'回到第一案':'下一案例';
+}
+function answerCase(index){
+  const item=V5_CASES[v5CaseIndex]; if(!item||!Number.isInteger(index)||index<0||index>=(item.options||[]).length)return;
+  const buttons=$$('.case-option'); if(buttons.some(b=>b.disabled))return;
+  const ok=index===item.answer; const state=getEnterpriseState();
+  state.caseAttempts+=1;if(ok)state.caseCorrect+=1;state.completedCases[item.id]={correct:ok,answeredAt:Date.now(),selected:index};state.lastMissionDay=localDayKey(Date.now());setEnterpriseState(state);
+  buttons.forEach((b,i)=>{b.disabled=true;if(i===item.answer)b.classList.add('correct');else if(i===index)b.classList.add('wrong');});
+  const topic=(KNOWLEDGE.topics||[]).find(x=>x.id===item.topic);
+  const feedback=$('#caseFeedback');
+  feedback.innerHTML=`<h4>${ok?'判斷正確':'判斷不正確'}</h4><p>${esc(item.analysis||'')}</p><div class="case-law"><b>主要法源：</b>${esc((item.laws||[]).join('、'))}</div>${topic?`<div class="case-learning"><b>延伸重點：</b>${esc(topic.summary)}</div><button class="topic-practice" data-topic-id="${esc(topic.id)}">練習「${esc(topic.title)}」相關題目</button>`:''}<p class="tutor-warning">${esc(KNOWLEDGE.notice||'')}</p>`;
+  feedback.classList.remove('hidden');renderEnterpriseMission();renderCasesMetricsOnly();
+}
+function renderCasesMetricsOnly(){
+  const box=$('#caseMetrics');if(!box)return;const state=getEnterpriseState();const completed=Object.keys(state.completedCases||{}).length;
+  box.innerHTML=`<div class="metric"><span>案例總數</span><b>${V5_CASES.length}</b><small>資料驅動案例庫</small></div><div class="metric"><span>完成案例</span><b>${completed}</b><small>不重複案例覆蓋</small></div><div class="metric"><span>累積判斷</span><b>${state.caseAttempts}</b><small>包含重新作答</small></div><div class="metric"><span>答對率</span><b>${state.caseAttempts?Math.round(state.caseCorrect/state.caseAttempts*100):0}%</b><small>案例判斷表現</small></div>`;
+}
+function populateComparisonCenter(){
+  const select=$('#compareTopic');if(!select)return;
+  select.innerHTML=(KNOWLEDGE.comparisons||[]).map(item=>`<option value="${esc(item.id)}">${esc(item.title)}</option>`).join('');
+}
+function renderV5Comparison(idOverride){
+  const id=idOverride||$('#compareTopic')?.value;const item=V5_COMPARISONS[id]||(KNOWLEDGE.comparisons||[])[0];const box=$('#comparisonTable');if(!box||!item)return;
+  box.innerHTML=`<div class="comparison-intro"><span class="answer-label">KNOWLEDGE COMPARISON</span><h3>${esc(item.title)}</h3><p>${esc(item.summary||'')}</p></div><div class="comparison-table"><div class="comparison-row head"><span>規定</span><span>適用前提</span><span>核心問題</span><span>處理方向</span><span>辨識提醒</span></div>${item.rows.map(r=>`<div class="comparison-row">${r.map(c=>`<span>${esc(c)}</span>`).join('')}</div>`).join('')}</div><div class="comparison-actions"><button class="comparison-practice" data-comparison-id="${esc(item.id)}">建立20題比較練習</button></div><p class="legal-note">${esc(KNOWLEDGE.notice||'')}</p>`;
+}
+function openTutorQuestion(id){const q=BANK_BY_ID.get(id);if(!q)return;bankPage=1;bankLegalKey='all';show('bank');$('#search').value=String(q.question||'').slice(0,24);renderBank();}
+
 function initialize() {
   if (!BANK.length) {
     showAppError('題庫載入失敗，無法建立測驗。請確認 data/questions.js 檔案完整。');
     return;
   }
-  if (bankCheck.invalid || bankCheck.duplicateContent) showAppError(`題庫完整性檢查已略過 ${bankCheck.invalid} 筆無效資料及 ${bankCheck.duplicateContent} 筆內容重複題目，其餘 ${BANK.length.toLocaleString()} 題可正常使用。`);
   sections.forEach((section) => {
     $('#section').add(new Option(section, section));
     $('#bankSection').add(new Option(section, section));
   });
   migrateReviewRecords();
   populateSpecialPractice();
+  populateComparisonCenter();
+  renderCases();
+  renderV5Comparison();
   applyPrefs();
   dashboard();
   updateActiveNavigation('dashboard');
