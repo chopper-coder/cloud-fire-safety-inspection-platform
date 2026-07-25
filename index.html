@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#102f44">
+<title>政府採購 AI 測驗平台 V4.2.0 Legal Verification & Exam Analytics Edition</title>
+<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icons/icon-180.png"><link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="updateBanner" class="update-banner hidden"><span>網站有新版本可用，更新前會保留本機學習資料。</span><button id="applyUpdate" class="primary small">立即更新</button><button id="dismissUpdate" class="ghost small">稍後</button></div>
+<div id="appError" class="app-error hidden" role="alert"></div>
+<div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+<div class="app-shell">
+<aside class="top desktop-sidebar" aria-label="電腦版主選單">
+ <div class="brand"><span class="emblem">AI</span><div><h1>政府採購 AI 測驗平台</h1><p>V4.2.0 LEGAL VERIFICATION</p></div></div>
+ <nav>
+<button data-page="dashboard"><span class="nav-icon">⌂</span><span>學習總覽</span></button>
+<button data-page="learning"><span class="nav-icon">AI</span><span>AI 學習中心</span></button>
+<button data-page="analytics"><span class="nav-icon">析</span><span>學習分析</span></button>
+<button data-page="setup"><span class="nav-icon">考</span><span>模擬測驗</span></button>
+<button data-page="bank"><span class="nav-icon">搜</span><span>題庫查詢</span></button>
+<button data-page="lawIndex"><span class="nav-icon">法</span><span>法規索引</span></button>
+<button data-page="wrong"><span class="nav-icon">錯</span><span>錯題本</span></button>
+<button data-page="favorites"><span class="nav-icon">★</span><span>收藏題目</span></button>
+<button data-page="templates"><span class="nav-icon">文</span><span>文件學習</span></button>
+<button data-page="history"><span class="nav-icon">記</span><span>學習紀錄</span></button>
+<button data-page="settings"><span class="nav-icon">設</span><span>平台設定</span></button>
+</nav>
+<div class="sidebar-note"><b>專業模擬器</b><span>資料僅儲存在本機瀏覽器</span></div>
+</aside>
+<div class="app-content">
+<header class="mobile-topbar">
+ <div class="mobile-brand"><span class="emblem">AI</span><div><b>政府採購 AI 測驗平台</b><small>V4.2.0 Exam Analytics</small></div></div>
+ <button id="mobileMoreTop" class="icon-button" aria-label="開啟更多功能">☰</button>
+</header>
+<main>
+<section id="dashboard" class="page">
+ <div class="v3-welcome">
+  <div>
+   <span class="kicker">PERSONAL LEARNING DASHBOARD</span>
+   <h2 id="welcomeTitle">早安，開始今天的採購學習</h2>
+   <p>系統依你的作答紀錄、錯題與弱點，自動整理今日最適合的學習方向。</p>
+   <div class="hero-actions">
+    <button class="primary" id="dailyStart">開始今日練習</button>
+    <button class="secondary" data-page="learning">查看 AI 學習建議</button>
+    <button class="ghost" id="resumeBtn">繼續未完成測驗</button>
+   </div>
+  </div>
+  <div class="level-panel">
+   <span>目前學習等級</span><b id="learnerLevel">新手學習者</b>
+   <div class="level-track"><i id="levelProgress"></i></div>
+   <small id="levelText">再完成一些題目即可升級</small>
+  </div>
+ </div>
+
+ <div class="metrics v3-metrics" id="metrics"></div>
+
+ <div class="dashboard-grid">
+  <article class="card daily-plan-card">
+   <div class="card-title-row"><div><span class="kicker">TODAY'S PLAN</span><h3>今日學習計畫</h3></div><span class="plan-badge" id="streakBadge">連續 0 天</span></div>
+   <div id="dailyPlan"></div>
+  </article>
+  <article class="card readiness-card">
+   <span class="kicker">LEARNING READINESS</span><h3>學習準備度</h3>
+   <div class="readiness-wrap"><div class="readiness-ring" id="readinessRing"><b id="readinessScore">0</b><span>/100</span></div><div id="readinessText"></div></div>
+  </article>
+ </div>
+
+ <div class="learning-actions v3-actions">
+  <button class="learning-card accent" data-page="learning"><span class="feature-icon">AI</span><b>AI 學習中心</b><span>個人化弱點分析與今日推薦</span></button>
+  <button class="learning-card" data-page="setup"><span class="feature-icon">考</span><b>模擬測驗</b><span>三節、單節或快速練習</span></button>
+  <button class="learning-card" data-page="analytics"><span class="feature-icon">析</span><b>學習分析</b><span>加權得分、覆蓋率與趨勢</span></button>
+  <button class="learning-card" data-page="bank"><span class="feature-icon">搜</span><b>題庫搜尋</b><span>快速查找題目與解析</span></button>
+  <button class="learning-card" data-page="wrong"><span class="feature-icon">複</span><b>錯題複習</b><span>集中強化容易混淆的觀念</span></button>
+ </div>
+
+ <div class="dashboard-grid lower">
+  <article class="card"><div class="card-title-row"><div><span class="kicker">WEAKNESS MAP</span><h3>弱點雷達</h3></div><button class="text-button" data-page="learning">完整分析 →</button></div><div id="topicProgress"></div></article>
+  <article class="card"><div class="card-title-row"><div><span class="kicker">RECENT ACTIVITY</span><h3>最近學習紀錄</h3></div><button class="text-button" data-page="history">全部紀錄 →</button></div><div id="recentActivity"></div></article>
+ </div>
+</section>
+
+<section id="learning" class="page hidden">
+ <div class="pagehead learning-head"><div><span class="kicker">AI PERSONALIZED LEARNING</span><h2>AI 學習中心</h2><p>依目前累積資料產生個人化學習建議；所有分析均在本機瀏覽器完成。</p></div><div class="ai-status"><i></i>本機智慧分析</div></div>
+ <div class="ai-overview">
+  <article class="card ai-coach-card">
+   <div class="coach-avatar">AI</div><div><span class="kicker">YOUR LEARNING COACH</span><h3 id="coachTitle">正在分析你的學習狀況</h3><p id="coachMessage"></p></div>
+  </article>
+  <article class="card focus-card"><span class="kicker">TODAY'S FOCUS</span><h3 id="focusTopic">建立基礎資料</h3><p id="focusReason"></p><button id="startFocusQuiz" class="primary wide">開始推薦練習</button></article>
+ </div>
+ <div class="learning-center-grid">
+  <article class="card"><h3>優先複習主題</h3><div id="priorityTopics"></div></article>
+  <article class="card"><h3>學習節奏</h3><div id="learningRhythm"></div></article>
+  <article class="card"><h3>能力分布</h3><div id="abilityDistribution"></div></article>
+ </div>
+ <article class="card smart-builder">
+  <div><span class="kicker">SMART PRACTICE BUILDER</span><h3>智慧練習產生器</h3><p>依弱點優先抽題，也會保留部分其他主題，避免只熟悉單一章節。</p></div>
+  <label>題數<select id="adaptiveCount"><option value="10">10 題｜快速複習</option><option value="20" selected>20 題｜標準練習</option><option value="30">30 題｜深度強化</option><option value="50">50 題｜完整檢測</option></select></label>
+  <button id="adaptiveStart" class="primary">建立智慧練習</button>
+ </article>
+</section>
+
+
+<section id="analytics" class="page hidden">
+ <div class="pagehead"><div><span class="kicker">EXAM ANALYTICS</span><h2>學習與測驗分析</h2><p>分開呈現題數答對率、2／5 分加權得分率、不重複題庫覆蓋率與作答趨勢。</p></div><button id="exportDiagnostics" class="secondary">匯出診斷報告</button></div>
+ <div id="analyticsMetrics" class="metrics analytics-metrics"></div>
+ <div class="analytics-grid">
+  <article class="card"><h3>最近測驗趨勢</h3><div id="analyticsTrend"></div></article>
+  <article class="card"><h3>題型表現</h3><div id="analyticsTypes"></div></article>
+  <article class="card"><h3>科目加權表現</h3><div id="analyticsTopics"></div></article>
+  <article class="card"><h3>最常出錯法條</h3><div id="analyticsLaws"></div></article>
+ </div>
+ <article class="card verification-dashboard"><div class="card-title-row"><div><span class="kicker">LEGAL VERIFICATION COVERAGE</span><h3>法源驗證狀態</h3></div><button data-page="lawIndex" class="text-button">開啟法規索引 →</button></div><div id="legalAuditMetrics" class="metrics"></div><p id="legalAuditNote" class="legal-note"></p></article>
+ <article class="card"><h3>下一步建議</h3><div id="analyticsRecommendations"></div></article>
+</section>
+
+<section id="setup" class="page hidden">
+ <div class="pagehead"><div><span class="kicker">EXAM BUILDER</span><h2>建立模擬測驗</h2></div></div>
+ <div class="mode-grid">
+  <article class="mode-card featured"><span class="mode-label">完整能力檢測</span><h3>三節模擬</h3><p>第1、2、3節依序作答，每節80分鐘，總分780分；完成全部三節後顯示完整解析。</p><div class="mode-facts"><b>225題</b><span>3節 × 80分鐘</span></div><button id="fullOfficial" class="primary wide">開始完整三節</button></article>
+  <article class="mode-card"><span class="mode-label">單節能力練習</span><h3>選擇其中一節</h3><label>節次<select id="officialSession"><option value="1">第1節｜策略、程序、問題對策</option><option value="2">第2節｜契約、爭議、條約協定</option><option value="3">第3節｜法律責任、財物勞務、工程技術</option></select></label><button id="singleOfficial" class="secondary wide">開始單節練習</button></article>
+  <article class="mode-card"><span class="mode-label">日常練習</span><h3>快速50題</h3><label>科目<select id="section"><option value="all">全部科目</option></select></label><label>時間<select id="duration"><option value="60">60分鐘</option><option value="80">80分鐘</option><option value="0">不限時間</option></select></label><label class="check"><input type="checkbox" id="prioritizeWrong" checked>優先抽入錯題</label><button id="quickStart" class="ghost wide">建立50題</button></article>
+ </div>
+
+ <article class="card specialized-builder">
+  <div><span class="kicker">LEGAL FOCUS PRACTICE</span><h3>法條專項與易混淆比較</h3><p>依題目明示法源優先出題；不足時才補入關鍵字關聯題，並在解析中清楚標示可信度。</p></div>
+  <div class="specialized-controls"><label>指定法條<select id="lawPracticeSelect"></select></label><label>題數<select id="lawPracticeCount"><option value="10">10題</option><option value="20" selected>20題</option><option value="30">30題</option><option value="50">50題</option></select></label><button id="startLawPractice" class="primary">開始法條專項</button></div>
+  <div class="specialized-controls"><label>易混淆組合<select id="comparisonSelect"></select></label><label>題數<select id="comparisonCount"><option value="10">10題</option><option value="20" selected>20題</option><option value="30">30題</option></select></label><button id="startComparisonPractice" class="secondary">開始比較練習</button></div>
+ </article>
+
+ <article class="card official-note"><h3>模擬測驗規則</h3><div class="rule-grid"><span>每節開始後題目固定</span><span>倒數結束自動交卷</span><span>最後10／5／1分鐘警示</span><span>交卷後不可返回修改</span><span>完成三節後統一解析</span><span>重新整理可恢復進度</span></div></article>
+</section>
+
+<section id="exam" class="page hidden">
+ <div id="warningBar" class="warningbar hidden"></div>
+ <div class="examtop">
+  <div><span id="examTitle">模擬測驗</span><b id="examStatus">第1題</b><div class="bar"><i id="progressBar"></i></div></div>
+  <div class="exam-meta"><span id="answeredCount">已答0題</span><span id="markedCount">標記0題</span></div>
+  <strong id="timer">80:00</strong><button id="mobileQuestionNav" class="secondary mobile-question-nav" aria-expanded="false">題號</button><button id="submitBtn" class="danger">交卷</button>
+ </div>
+ <div class="examgrid">
+  <aside class="card navbox" id="examNavPanel"><div class="mobile-navbox-head"><h3>作答進度</h3><button id="closeQuestionNav" class="icon-button" aria-label="關閉題號選單">×</button></div><div id="courseLegend" class="course-legend"></div><div class="nav-tools"><button id="nextUnanswered" class="secondary small">下一個未答題</button><button id="nextMarked" class="ghost small">下一個標記題</button></div><div id="qnav" class="qnav"></div><div class="legend">綠色：已作答　金框：目前題　紅點：標記</div></aside>
+  <article class="card question"><div class="tags"><span id="typeTag"></span><span id="courseTag"></span><span id="sectionTag"></span></div><h2 id="qtext"></h2><div id="opts"></div><div class="actions"><button id="prev" class="secondary">上一題</button><button id="mark" class="ghost">☆ 標記</button><button id="next" class="primary">下一題</button></div></article>
+ </div>
+</section>
+
+<section id="breakPage" class="page hidden">
+ <article class="card break-card"><span class="kicker">SESSION COMPLETED</span><div class="session-check">✓</div><h2 id="breakTitle">第1節已交卷</h2><p id="breakSummary"></p><div id="breakScores" class="metrics"></div><div class="locked-note">本節答案已鎖定。三節模式將於全部完成後顯示答案與解析。</div><button id="nextSessionBtn" class="primary">開始下一節</button></article>
+</section>
+
+<section id="results" class="page hidden">
+ <div class="resultHero card"><div class="score total-score"><b id="score">0</b><span id="scoreUnit">分</span></div><div><span class="kicker">LEARNING PERFORMANCE REPORT</span><h2 id="resultTitle">測驗結果</h2><p id="resultSummary"></p><div class="hero-actions"><button class="primary" data-page="setup">建立新測驗</button><button class="secondary" id="wrongView">只看錯題</button><button class="ghost" id="allView">全部解析</button></div></div></div>
+ <div class="metrics" id="resultMetrics"></div>
+ <article id="sessionReportCard" class="card"><h3>節次與科目成績</h3><div id="sessionReport"></div></article>
+ <article class="card"><h3>弱點分析與建議複習順序</h3><div id="resultTopics"></div></article>
+ <article class="card review"><div class="reviewhead"><h3>交卷詳解</h3><span id="reviewCount"></span></div><div id="reviewList"></div></article>
+</section>
+
+<section id="bank" class="page hidden">
+ <div class="pagehead"><div><span class="kicker">QUESTION BANK</span><h2>題庫查詢</h2></div></div>
+ <div class="card filters"><input id="search" placeholder="搜尋題目、出處或法條，例如：第22條、最有利標"><select id="bankSection"><option value="all">全部科目</option></select><select id="bankType"><option value="all">全部題型</option><option value="mc">選擇題</option><option value="tf">是非題</option></select></div>
+ <div id="bankCount" class="count"></div><div id="bankList"></div><div id="bankPagination" class="pagination"></div>
+</section>
+
+
+<section id="lawIndex" class="page hidden">
+ <div class="pagehead"><div><span class="kicker">LEGAL REFERENCE INDEX</span><h2>法規索引</h2><p>依題目明示法條與關鍵字關聯建立索引；推定關聯不代表本題唯一適用法源。</p></div></div>
+ <div class="card filters law-index-filter"><input id="lawSearch" placeholder="搜尋法規名稱或條號，例如：政府採購法第22條"></div>
+ <div id="lawIndexStats" class="metrics"></div>
+ <div id="lawIndexList"></div>
+</section>
+
+<section id="templates" class="page hidden">
+ <div class="pagehead"><div><span class="kicker">DOCUMENT LEARNING CENTER</span><h2>採購文件學習專區</h2></div></div>
+ <div class="template-grid">
+  <article class="card"><h3>投標與招標文件</h3><p>投標須知、參考最有利標精神投標須知、電子報價單投標須知、招標投標及契約文件、投標標價清單及廠商聲明書。</p></article>
+  <article class="card"><h3>主要契約範本</h3><p>工程、統包工程、財物、勞務、公共工程技術服務、專案管理、資訊服務及資訊雲端服務契約範本。</p></article>
+  <article class="card"><h3>特殊服務與開口契約</h3><p>災害搶險搶修、災後復建技術服務、媒體服務、社會福利服務及藝文採購契約範本。</p></article>
+  <article class="card"><h3>擔保與保證文件</h3><p>共同投標協議書、押標金與履約／保固保證書、保險單、擔保信用狀及定期存款單質權格式。</p></article>
+  <article class="card"><h3>開標與驗收表格</h3><p>開標、議價、決標、流標、廢標紀錄，以及初驗、驗收、結算明細與各類結算驗收證明書。</p></article>
+  <article class="card"><h3>題庫使用方式</h3><p>在「模擬測驗」選擇新增的範本科目，或在「題庫查詢」篩選「投標須知與招標文件範本」、「契約範本實務」及「採購表格與保證文件」。</p></article>
+ </div>
+ <article class="card source-note"><b>版本說明</b><p>新增題目依公開招標文件、契約範例及採購實務資料重新編寫。相關文件可能持續修正，實務使用時仍應查閱最新公開版本並逐條核對。</p></article>
+</section>
+
+
+<section id="favorites" class="page hidden">
+ <div class="pagehead"><div><span class="kicker">PERSONAL COLLECTION</span><h2>收藏題目</h2></div><button id="clearFavorites" class="danger">清除收藏</button></div>
+ <div id="favoriteList"></div>
+</section>
+
+<section id="history" class="page hidden">
+ <div class="pagehead"><div><span class="kicker">LEARNING HISTORY</span><h2>學習紀錄</h2></div><button id="clearHistory" class="danger">清除測驗紀錄</button></div>
+ <div id="historySummary" class="metrics"></div>
+ <article class="card"><div id="historyList"></div></article>
+</section>
+
+<section id="settings" class="page hidden">
+ <div class="pagehead"><div><span class="kicker">DATA & PLATFORM</span><h2>平台設定</h2></div></div>
+ <div class="settings-grid">
+  <article class="card"><h3>學習資料備份</h3><p>匯出測驗進度、統計、錯題、收藏與學習紀錄；可在另一台電腦或瀏覽器匯入。</p><div class="setting-actions"><button id="exportData" class="primary">匯出備份</button><label class="secondary import-label">匯入備份<input id="importData" type="file" accept="application/json"></label></div></article>
+  <article class="card"><h3>顯示偏好</h3><label class="check"><input type="checkbox" id="largeText">使用大字模式</label><label class="check"><input type="checkbox" id="compactMode">使用緊湊版面</label><label class="check"><input type="checkbox" id="autoNext">選擇答案後自動前往下一題</label><label>智慧練習避開近期題目<select id="avoidRecentDays"><option value="0">不避開</option><option value="3">最近3日</option><option value="7">最近7日</option><option value="14">最近14日</option><option value="30">最近30日</option></select></label></article>
+  <article class="card"><h3>安裝與離線使用</h3><p>支援安裝到手機或電腦主畫面，第一次完整載入後可離線使用；有新版時會顯示更新通知。</p><div class="setting-actions"><button id="installApp" class="primary" disabled>安裝平台</button><button id="checkUpdate" class="secondary">檢查更新</button></div><small id="pwaStatus">正在檢查瀏覽器支援狀態…</small></article>
+  <article class="card"><h3>法規資料狀態</h3><p>法源索引核對日：115年7月25日。政府採購法修正日期：108年5月22日；政府採購法施行細則修正日期：110年7月14日。</p><div class="setting-actions"><button data-page="lawIndex" class="primary">開啟法規索引</button><a class="secondary button-link" href="https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=A0030057" target="_blank" rel="noopener noreferrer">官方最新法規</a></div></article>
+  <article class="card danger-zone"><h3>資料清理</h3><p>「清除測驗紀錄」只刪除完成紀錄；「清除統計與紀錄」會同時重設答題數、答對率及 AI 分析。</p><div class="setting-actions vertical"><button id="exportDiagnosticsSettings" class="secondary">匯出診斷報告</button><button id="clearHistoryOnly" class="secondary">只清除測驗紀錄</button><button id="clearLearningStats" class="danger">清除統計與紀錄</button><button id="resetAll" class="danger outline">重設全部資料</button></div></article>
+ </div>
+ <article class="card about-card"><h3>關於本平台</h3><p><b>政府採購 AI 測驗平台 V4.2.0 Legal Verification & Exam Analytics Edition</b> 是獨立開發的教育訓練與自我學習工具。平台內的題目、解析與配置由本專案自行整理，與任何政府機關、考試主辦單位或特定機關題庫均無隸屬、授權、合作或認證關係。</p><p>內容僅供學習參考；實際案件仍應依最新法規、函釋、招標文件及契約內容辦理。</p></article>
+</section>
+
+<section id="wrong" class="page hidden">
+ <div class="pagehead"><div><span class="kicker">SPACED REVIEW CENTER</span><h2>錯題間隔複習</h2><p>錯題不再答對兩次就刪除，而是依 1、3、7、14、30、90 天逐步安排複習。</p></div><button id="clearWrong" class="danger">清除錯題紀錄</button></div>
+ <div id="wrongSummary" class="metrics"></div>
+ <div class="card wrong-toolbar"><select id="wrongStatusFilter"><option value="all">全部錯題</option><option value="due">今日到期</option><option value="learning">學習中</option><option value="mastered">已掌握待追蹤</option></select><div><button id="practiceDueWrong" class="primary">練習今日到期</button><button id="practiceAllWrong" class="secondary">練習全部錯題</button></div></div>
+ <div id="wrongList"></div>
+</section>
+</main>
+<footer><b>政府採購 AI 測驗平台 V4.2.0 Legal Verification & Exam Analytics Edition</b><br>本平台為獨立開發之學習工具，與任何政府機關或考試主辦單位無隸屬、授權、合作或認證關係。內容僅供教育訓練與自我學習參考。</footer>
+</div>
+</div>
+<div id="mobileOverlay" class="mobile-overlay"></div>
+<nav class="mobile-bottom-nav" aria-label="手機版主選單">
+ <button data-page="dashboard"><span>⌂</span><b>總覽</b></button>
+ <button data-page="learning"><span>AI</span><b>學習</b></button>
+ <button data-page="setup" class="mobile-exam-main"><span>考</span><b>測驗</b></button>
+ <button data-page="wrong"><span>錯</span><b>錯題</b></button>
+ <button id="mobileMore"><span>☰</span><b>更多</b></button>
+</nav>
+<section id="mobileMoreSheet" class="mobile-more-sheet" aria-hidden="true">
+ <div class="sheet-handle"></div>
+ <div class="sheet-head"><div><b>更多功能</b><small>題庫、收藏、文件與資料設定</small></div><button id="closeMobileMore" class="icon-button" aria-label="關閉更多功能">×</button></div>
+ <div class="sheet-grid">
+  <button data-page="analytics"><span>析</span><b>學習分析</b></button>
+  <button data-page="bank"><span>搜</span><b>題庫查詢</b></button>
+  <button data-page="lawIndex"><span>法</span><b>法規索引</b></button>
+  <button data-page="favorites"><span>★</span><b>收藏題目</b></button>
+  <button data-page="templates"><span>文</span><b>文件學習</b></button>
+  <button data-page="history"><span>記</span><b>學習紀錄</b></button>
+  <button data-page="settings"><span>設</span><b>平台設定</b></button>
+ </div>
+</section>
+<script src="data/questions.js"></script><script src="data/scheme.js"></script><script src="data/verified_legal_data.js"></script><script src="data/legal_basis.js"></script><script src="app.js"></script>
+</body></html>
