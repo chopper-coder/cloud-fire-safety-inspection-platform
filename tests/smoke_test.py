@@ -12,7 +12,7 @@ from playwright.sync_api import Browser, Error as PlaywrightError, Page, Playwri
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 BASE_URL = sys.argv[1] if len(sys.argv) > 1 else PROJECT_ROOT.joinpath("index.html").as_uri()
-EXPECTED_VERSION = "5.1.4"
+EXPECTED_VERSION = "5.1.5"
 
 
 def assert_equal(actual: Any, expected: Any, label: str) -> None:
@@ -49,9 +49,12 @@ def static_integrity_checks() -> None:
 
     assert_true(f"V{EXPECTED_VERSION}" in html, "HTML version label")
     assert_true(f"APP_VERSION = '{EXPECTED_VERSION}'" in app, "APP_VERSION")
-    assert_true("gpai-v514-" in worker, "service worker cache version")
+    assert_true("gpai-v515-" in worker, "service worker cache version")
     assert_true(EXPECTED_VERSION in manifest.get("name", ""), "manifest full name version")
     assert_true(EXPECTED_VERSION in manifest.get("short_name", ""), "manifest short name version")
+    assert_true('id="critical-theme"' in html, "critical first-paint theme present")
+    assert_true('rel="preload" href="style.css" as="style"' in html, "stylesheet preload present")
+    assert_true('background:transparent' in PROJECT_ROOT.joinpath("style.css").read_text(encoding="utf-8"), "sidebar button background reset")
 
     script_sources = re.findall(r'<script\s+src="([^"]+)"', html)
     stylesheet_sources = re.findall(r'<link[^>]+rel="stylesheet"[^>]+href="([^"]+)"', html)
@@ -207,6 +210,24 @@ def open_page(page: Page, page_name: str, mode: str) -> None:
 
     page.locator(f"#{page_name}").wait_for(state="visible")
     assert_true("hidden" not in (page.locator(f"#{page_name}").get_attribute("class") or "").split(), f"{page_name} visible")
+
+
+def critical_first_paint_checks(browser: Browser) -> None:
+    html = PROJECT_ROOT.joinpath("index.html").read_text(encoding="utf-8")
+    html = re.sub(r'<link\s+rel="stylesheet"\s+href="style\.css">', "", html)
+    html = re.sub(r'<script[^>]*>.*?</script>', "", html, flags=re.S)
+    page = browser.new_page(viewport={"width": 1440, "height": 900})
+    page.set_content(html, wait_until="domcontentloaded")
+    sidebar = page.locator(".desktop-sidebar.top")
+    sidebar.wait_for(state="visible")
+    background = style(page, ".desktop-sidebar.top", "background-color")
+    image = style(page, ".desktop-sidebar.top", "background-image")
+    button_background = page.locator(".desktop-sidebar nav button").first.evaluate("el => getComputedStyle(el).backgroundColor")
+    assert_true(background not in {"rgb(255, 255, 255)", "rgba(255, 255, 255, 1)"}, "critical sidebar must not be white")
+    assert_true(image != "none", "critical sidebar gradient present")
+    assert_equal(button_background, "rgba(0, 0, 0, 0)", "critical nav button transparent")
+    assert_true(float(style(page, ".app-content", "margin-left").replace("px", "")) > 200, "critical content offset")
+    page.close()
 
 
 def run_viewport(browser: Browser, width: int, height: int, mode: str) -> None:
@@ -404,6 +425,7 @@ def main() -> None:
     with sync_playwright() as playwright:
         browser = launch_browser(playwright)
         try:
+            critical_first_paint_checks(browser)
             run_viewport(browser, 1440, 1000, "desktop")
             run_viewport(browser, 1024, 900, "tablet")
             run_viewport(browser, 390, 844, "mobile")
@@ -411,7 +433,7 @@ def main() -> None:
             quick_result_and_import_checks(browser)
         finally:
             browser.close()
-    print("PASS: V5.1.4 static integrity, responsive UI, mobile navigation, official exam, quick exam, results, and backup validation")
+    print("PASS: V5.1.5 critical first paint, responsive UI, mobile navigation, official exam, quick exam, results, and backup validation")
 
 
 if __name__ == "__main__":

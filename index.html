@@ -2,9 +2,22 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#102f44">
-<title>政府採購 AI 學習平台 V5.1.4 Test Reliability Fix Edition</title>
-<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icons/icon-180.png"><link rel="stylesheet" href="style.css">
+<meta name="theme-color" content="#0b2c42">
+<title>政府採購 AI 學習平台 V5.1.5 Theme Initialization Fix Edition</title>
+<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="preload" href="style.css" as="style">
+<style id="critical-theme">
+:root{color-scheme:light;--critical-sidebar-w:264px;--critical-bg:#edf3f6;--critical-navy:#0b2c42;--critical-navy-mid:#103f5b;--critical-teal:#155f68}
+*{box-sizing:border-box}
+html,body{margin:0;min-width:320px;background:var(--critical-bg);color:#20313d;font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif}
+.app-shell,.app-content{min-height:100vh}.app-content{margin-left:var(--critical-sidebar-w)}
+.desktop-sidebar.top{position:fixed;inset:0 auto 0 0;z-index:50;width:var(--critical-sidebar-w);min-height:100vh;padding:22px 16px 18px;display:flex;flex-direction:column;background:linear-gradient(180deg,var(--critical-navy) 0%,var(--critical-navy-mid) 60%,var(--critical-teal) 100%);color:#eef8fb;box-shadow:10px 0 35px rgba(8,32,51,.16)}
+.desktop-sidebar .brand{display:flex;align-items:center;gap:12px}.desktop-sidebar .brand h1{margin:0;color:#fff}.desktop-sidebar .brand p{margin:3px 0 0;color:#a9cbd5}.desktop-sidebar nav{display:flex;flex-direction:column;gap:5px;margin-top:20px}.desktop-sidebar nav button{appearance:none;width:100%;border:0;background:transparent;color:#dcecf1;text-align:left}.desktop-sidebar .sidebar-note{margin-top:auto;color:#dcecf1}
+.mobile-topbar,.mobile-bottom-nav,.mobile-more-sheet,.mobile-overlay{display:none}
+@media(max-width:1180px) and (min-width:901px){:root{--critical-sidebar-w:224px}.desktop-sidebar.top{padding-inline:12px}}
+@media(max-width:900px){:root{--critical-sidebar-w:0px}.desktop-sidebar.top{display:none!important}.app-content{margin-left:0}.mobile-topbar{display:flex;background:linear-gradient(100deg,#0b2c42,#174862);color:#fff}}
+</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div id="updateBanner" class="update-banner hidden"><span>網站有新版本可用，更新前會保留本機學習資料。</span><button id="applyUpdate" class="primary small">立即更新</button><button id="dismissUpdate" class="ghost small">稍後</button></div>
@@ -12,7 +25,7 @@
 <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 <div class="app-shell">
 <aside class="top desktop-sidebar" aria-label="電腦版主選單">
- <div class="brand"><span class="emblem">AI</span><div><h1>政府採購 AI 學習平台</h1><p>V5.1.4 RELIABILITY FIX</p></div></div>
+ <div class="brand"><span class="emblem">AI</span><div><h1>政府採購 AI 學習平台</h1><p>V5.1.5 THEME FIX</p></div></div>
  <nav>
 <button data-page="dashboard"><span class="nav-icon">⌂</span><span>學習總覽</span></button>
 <button data-page="learning"><span class="nav-icon">AI</span><span>AI 學習中心</span></button>
@@ -33,7 +46,7 @@
 </aside>
 <div class="app-content">
 <header class="mobile-topbar">
- <div class="mobile-brand"><span class="emblem">AI</span><div><b>政府採購 AI 學習平台</b><small>V5.1.4 Reliability</small></div></div>
+ <div class="mobile-brand"><span class="emblem">AI</span><div><b>政府採購 AI 學習平台</b><small>V5.1.5 Theme Fix</small></div></div>
  <button id="mobileMoreTop" class="icon-button" aria-label="開啟更多功能">☰</button>
 </header>
 <main>
@@ -109,7 +122,7 @@
 
 
 <section id="tutor" class="page hidden">
- <div class="pagehead enterprise-head"><div><span class="kicker">AI PROCUREMENT TUTOR</span><h2>AI 採購老師</h2><p>使用統一採購知識資料層、法源索引與3,664題題庫，提供白話重點、易混淆提醒、法條比較與相關題目。</p></div><span class="enterprise-badge">V5.1.4 RELIABILITY</span></div>
+ <div class="pagehead enterprise-head"><div><span class="kicker">AI PROCUREMENT TUTOR</span><h2>AI 採購老師</h2><p>使用統一採購知識資料層、法源索引與3,664題題庫，提供白話重點、易混淆提醒、法條比較與相關題目。</p></div><span class="enterprise-badge">V5.1.5 THEME FIX</span></div>
  <div class="tutor-layout">
   <article class="card tutor-chat-card">
    <div id="tutorMessages" class="tutor-messages"><div class="tutor-message assistant"><b>AI 採購老師</b><p>可輸入法條號或採購主題，例如「第53、54、58條差在哪」、「限制性招標」、「驗收不符如何處理」。回答會標示學習摘要與相關題目。</p></div></div>
@@ -235,7 +248,7 @@
   <article class="card"><h3>法規資料狀態</h3><p>法源索引核對日：115年7月25日。政府採購法修正日期：108年5月22日；政府採購法施行細則修正日期：110年7月14日。</p><div class="setting-actions"><button data-page="lawIndex" class="primary">開啟法規索引</button><a class="secondary button-link" href="https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=A0030057" target="_blank" rel="noopener noreferrer">官方最新法規</a></div></article>
   <article class="card danger-zone"><h3>資料清理</h3><p>「清除測驗紀錄」只刪除完成紀錄；「清除統計與紀錄」會同時重設答題數、答對率及 AI 分析。</p><div class="setting-actions vertical"><button id="exportDiagnosticsSettings" class="secondary">匯出診斷報告</button><button id="clearHistoryOnly" class="secondary">只清除測驗紀錄</button><button id="clearLearningStats" class="danger">清除統計與紀錄</button><button id="resetAll" class="danger outline">重設全部資料</button></div></article>
  </div>
- <article class="card about-card"><h3>關於本平台</h3><p><b>政府採購 AI 學習平台 V5.1.4 Test Reliability Fix Edition</b> 是獨立開發的教育訓練與自我學習工具。平台內的題目、解析與配置由本專案自行整理，與任何政府機關、考試主辦單位或特定機關題庫均無隸屬、授權、合作或認證關係。</p><p>內容僅供學習參考；實際案件仍應依最新法規、函釋、招標文件及契約內容辦理。</p></article>
+ <article class="card about-card"><h3>關於本平台</h3><p><b>政府採購 AI 學習平台 V5.1.5 Theme Initialization Fix Edition</b> 是獨立開發的教育訓練與自我學習工具。平台內的題目、解析與配置由本專案自行整理，與任何政府機關、考試主辦單位或特定機關題庫均無隸屬、授權、合作或認證關係。</p><p>內容僅供學習參考；實際案件仍應依最新法規、函釋、招標文件及契約內容辦理。</p></article>
 </section>
 
 <section id="wrong" class="page hidden">
@@ -245,7 +258,7 @@
  <div id="wrongList"></div>
 </section>
 </main>
-<footer><b>政府採購 AI 學習平台 V5.1.4 Test Reliability Fix Edition</b><br>本平台為獨立開發之學習工具，與任何政府機關或考試主辦單位無隸屬、授權、合作或認證關係。內容僅供教育訓練與自我學習參考。</footer>
+<footer><b>政府採購 AI 學習平台 V5.1.5 Theme Initialization Fix Edition</b><br>本平台為獨立開發之學習工具，與任何政府機關或考試主辦單位無隸屬、授權、合作或認證關係。內容僅供教育訓練與自我學習參考。</footer>
 </div>
 </div>
 <div id="mobileOverlay" class="mobile-overlay"></div>

@@ -4,7 +4,7 @@ const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
 const APP_NAME = '政府採購 AI 學習平台';
-const APP_VERSION = '5.1.4';
+const APP_VERSION = '5.1.5';
 const QUESTION_BANK_VERSION = '2026-07-25-v2-deduplicated';
 const LEGAL_ANALYSIS_VERSION = '2026-07-25-v5-enterprise-tutor';
 const QUESTION_ID_ALIASES = window.QUESTION_ID_ALIASES || {};

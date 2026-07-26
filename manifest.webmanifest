@@ -1,14 +1,14 @@
 {
-  "name": "政府採購 AI 學習平台 V5.1.4",
-  "short_name": "採購AI V5.1.4",
+  "name": "政府採購 AI 學習平台 V5.1.5",
+  "short_name": "採購AI V5.1.5",
   "description": "整合題庫、法條知識、案例研習、比較學習與個人化分析的離線學習平台。",
   "lang": "zh-TW",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#f3f7fa",
-  "theme_color": "#102f44",
+  "background_color": "#edf3f6",
+  "theme_color": "#0b2c42",
   "icons": [
     {
       "src": "icons/icon-192.png",

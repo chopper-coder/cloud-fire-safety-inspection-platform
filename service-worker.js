@@ -1,5 +1,5 @@
 'use strict';
-const CACHE_NAME = 'gpai-v514-20260726';
+const CACHE_NAME = 'gpai-v515-20260726';
 const APP_ASSETS = ["./", "./index.html", "./style.css", "./app.js", "./manifest.webmanifest", "./data/questions.js", "./data/scheme.js", "./data/verified_legal_data.js", "./data/legal_basis.js", "./data/knowledge_base.js", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/icon-180.png"];
 self.addEventListener('install', (event) => { event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_ASSETS))); });
 self.addEventListener('activate', (event) => { event.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)))).then(() => self.clients.claim())); });

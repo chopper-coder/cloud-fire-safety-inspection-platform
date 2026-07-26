@@ -318,3 +318,45 @@ body.sheet-open,body.question-nav-open{overflow:hidden}
 /* V5.1 Knowledge Edition */
 .knowledge-answer{display:grid;gap:10px}.knowledge-answer h3,.knowledge-answer h4{margin:0}.answer-label{display:inline-flex;width:max-content;padding:5px 9px;border-radius:999px;background:rgba(32,125,170,.12);font-size:.76rem;font-weight:800;letter-spacing:.05em}.knowledge-answer ul{margin:0;padding-left:1.25rem;display:grid;gap:6px}.answer-laws{display:flex;flex-wrap:wrap;gap:6px}.answer-laws span{padding:6px 9px;border-radius:8px;background:var(--surface-soft,#eef5f8);font-size:.86rem}.answer-related{margin-top:14px;display:grid;gap:7px}.answer-related h4{margin:0}.knowledge-mini-table{display:grid;gap:6px}.knowledge-mini-table>div{display:grid;grid-template-columns:minmax(72px,.7fr) repeat(3,minmax(100px,1fr));gap:6px;padding:8px;border-radius:8px;background:var(--surface-soft,#eef5f8);font-size:.82rem}.open-comparison,.comparison-practice,.topic-practice{border:0;border-radius:9px;padding:9px 12px;font-weight:700;cursor:pointer;background:#164e67;color:#fff}.case-scenario{display:grid;gap:12px}.case-scenario strong{padding:12px;border-left:4px solid #1e7195;background:var(--surface-soft,#eef5f8);border-radius:6px}.case-learning{margin:10px 0;padding:10px;border-radius:8px;background:var(--surface-soft,#eef5f8)}.comparison-intro{margin-bottom:14px}.comparison-actions{margin-top:14px}.comparison-table .comparison-row{grid-template-columns:.7fr 1fr 1fr 1.2fr 1fr}
 @media(max-width:850px){.knowledge-mini-table>div{grid-template-columns:1fr}.comparison-table .comparison-row{grid-template-columns:1fr}.comparison-table .comparison-row span:first-child{font-weight:800}}
+
+
+/* V5.1.5 Theme Initialization Fix Edition
+   Unified first-paint, desktop sidebar and mobile navigation palette. */
+:root{
+ --navy:#123a54;--navy2:#092b40;--gold:#c59b45;--paper:#edf3f6;
+ --ink:#20313d;--muted:#64757f;--line:#d6e1e5;--pale:#e9f2f4;
+ --v3-bg:#edf3f6;--v3-panel:#fff;--v3-blue:#123a54;--v3-blue2:#092b40;
+ --v3-cyan:#159d98;--v3-cyan-soft:#e1f3f2;--v3-gold:#cda64f;
+ --sidebar-start:#08283d;--sidebar-mid:#103e59;--sidebar-end:#125b67;
+ --surface:#fff;--surface-soft:#eef5f7;
+}
+html{background:var(--v3-bg);color-scheme:light}
+body{background:linear-gradient(180deg,#edf3f6 0%,#f6f8f9 46%,#edf3f6 100%);color:var(--ink)}
+.app-content{background:transparent}
+.desktop-sidebar.top{
+ background:linear-gradient(180deg,var(--sidebar-start) 0%,var(--sidebar-mid) 58%,var(--sidebar-end) 100%);
+ color:#edf8fb;border-right:1px solid rgba(255,255,255,.05);
+ box-shadow:10px 0 36px rgba(8,32,51,.16)
+}
+.desktop-sidebar .brand h1{color:#fff;text-shadow:0 1px 1px rgba(0,0,0,.14)}
+.desktop-sidebar .brand p{color:#a8cbd5}
+.desktop-sidebar nav button{
+ appearance:none;border:1px solid transparent;background:transparent;color:#dcecf1;
+ box-shadow:none
+}
+.desktop-sidebar nav button:hover{background:rgba(255,255,255,.085);border-color:rgba(255,255,255,.055)}
+.desktop-sidebar nav button.active{
+ background:linear-gradient(90deg,rgba(34,190,181,.27),rgba(255,255,255,.085));
+ border-color:rgba(82,213,207,.18);color:#fff;box-shadow:inset 3px 0 0 #51d5cf
+}
+.desktop-sidebar .nav-icon{background:rgba(255,255,255,.085);color:#e8f4f7}
+.desktop-sidebar nav button.active .nav-icon{background:#51d5cf;color:#0b3543}
+.sidebar-note{background:rgba(255,255,255,.065);border-color:rgba(255,255,255,.13)}
+.card,.metric,.mode-card,.bank-item{background:var(--surface);border-color:var(--line)}
+.primary{background:var(--gold);color:#172b38}.secondary{background:#fff;border-color:#9fb4bd;color:var(--navy)}
+.mobile-topbar{background:linear-gradient(100deg,var(--sidebar-start),#174862)}
+.mobile-bottom-nav{background:rgba(255,255,255,.98);border-top-color:#d4e1e5}
+.mobile-bottom-nav button{background:transparent;color:#657780}
+.mobile-bottom-nav button.active{color:#0f7f7a;background:#e4f4f3}
+.mobile-more-sheet{background:#fff}.sheet-grid button{background:#f6fafb;border-color:#dce7ea;color:#123f58}
+@media(max-width:900px){body{background:#edf3f6}}
